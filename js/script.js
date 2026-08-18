@@ -19,13 +19,18 @@ const nextBtn = document.getElementById('nextBtn');
 // Theme toggle
 const themeToggle = document.getElementById("themeToggle");
 
+// Parallax header
+const siteHeader = document.querySelector(".site-header");
+
 // Load saved theme
 if (localStorage.getItem("theme") === "dark") {
   document.body.classList.add("dark");
   themeToggle.textContent = "☀️ Light Mode";
+} else {
+  themeToggle.textContent = "🌙 Dark Mode";
 }
 
-// Toggle theme
+// Toggle theme (with subtle animation)
 themeToggle.addEventListener("click", () => {
   document.body.classList.toggle("dark");
 
@@ -36,6 +41,12 @@ themeToggle.addEventListener("click", () => {
     localStorage.setItem("theme", "light");
     themeToggle.textContent = "🌙 Dark Mode";
   }
+
+  // Tiny bounce animation
+  themeToggle.style.transform = "scale(0.95)";
+  setTimeout(() => {
+    themeToggle.style.transform = "scale(1)";
+  }, 150);
 });
 
 // State for modal navigation
@@ -119,7 +130,7 @@ async function fetchRandomApod() {
   }
 }
 
-// Render gallery
+// Render gallery (with 3D tilt)
 function renderGallery(items) {
   gallery.innerHTML = "";
 
@@ -147,6 +158,20 @@ function renderGallery(items) {
         window.open(item.url, "_blank");
       });
     }
+
+    // 3D tilt effect
+    card.addEventListener("mousemove", (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      const rotateX = (-y * 10).toFixed(2);
+      const rotateY = (x * 10).toFixed(2);
+      card.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg) scale(1.15)`;
+    });
+
+    card.addEventListener("mouseleave", () => {
+      card.style.transform = "rotateY(0deg) rotateX(0deg) scale(1)";
+    });
 
     gallery.appendChild(card);
   });
@@ -255,4 +280,12 @@ nextBtn.addEventListener("click", () => {
   if (!currentItems.length) return;
   currentIndex = (currentIndex + 1) % currentItems.length;
   openModal(currentIndex);
+});
+
+// Parallax header + Back to Top rocket
+window.addEventListener("scroll", () => {
+  const scrollY = window.scrollY || window.pageYOffset;
+
+  // Parallax header
+  siteHeader.style.transform = `translateY(${scrollY * 0.15}px)`;
 });
